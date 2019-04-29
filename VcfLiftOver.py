@@ -3,9 +3,7 @@ import getopt, sys, subprocess, datetime, gzip, random, os, signal, re
 
 def timenow():
 	t = datetime.datetime.today()
-	return(str(t.year) + "-" + str(t.month).zfill(2) + "-" + str(t.day).zfill(2) + " " + str(t.hour).zfill(2) + ":" + str(t.minute).zfill(2) + ":" + str(t.second).zfill(2))
-
-
+	return str(t.year) + "-" + str(t.month).zfill(2) + "-" + str(t.day).zfill(2) + " " + str(t.hour).zfill(2) + ":" + str(t.minute).zfill(2) + ":" + str(t.second).zfill(2)
 
 
 def FindAFIndex(FormatStrin):
@@ -43,7 +41,8 @@ def timediff(t1,t2):
 		txt = txt + str(mins) + " minutes, "
 		secs = minsecs
 	txt = txt + str(secs) + " seconds"
-	return(txt)
+	return txt
+
 
 def main():
 	buildMap = ""
@@ -51,7 +50,7 @@ def main():
 	outfile = ""
 	parsed = 0
 	try:
-		opts,args = getopt.getopt(sys.argv[1:],"m:v:o:hp",["mapper=","vcf=","out=","help","parsed"])
+		opts, args = getopt.getopt(sys.argv[1:], "m:v:o:hp", ["mapper=", "vcf=", "out=", "help", "parsed"])
 	except getopt.GetoptError, err:
 		print str(err)
 		sys.exit(2)
@@ -69,11 +68,11 @@ def main():
 			sys.exit()
 		else:
 			usage()
-			sys.exit()
 			print("Ignoring unknown option: " + o + " " + a)
+			sys.exit()
 
 	RanVal = random.randrange(1000,9999)
-	 
+
 	if "" in [infile, buildMap]:
 		print("\n VcfLiftOver.py\n Parameters in effect:")
 		print(" Input VCF file:         [ " + infile + " ]")
@@ -86,7 +85,6 @@ def main():
 	timeTxt = timenow()
 	print("Started run at " + timeTxt + "\n\n")
 	starttime = datetime.datetime.now()
-	ct = 0
 	
 	# Get contig ID from VCF Mapper File metaLines	
 	# If Mapper File is VCF format, then parse it to get simplified mapper file
@@ -103,13 +101,13 @@ def main():
 	# else:
 		# print "\nUsing user-input parsed Map file ...\n"
 	dict = {}
-         
+
 	# Read and store list of variants from mapper file
-	with open(buildMap,"r") as f:
+	with open(buildMap, "r") as f:
 		for line in f:
-			values = line.split('\t')
+			values = line.rstrip("\n").split('\t')
 			dict[values[0]] = values[1]
-	 
+
 	#with gzip.open(outfile+".vcf.gz","w") as wm: 
 	
 	Match=0
@@ -182,8 +180,7 @@ def main():
 				else:	
 					Miss=Miss+1
 					miss.write(VarName+"\n")
-	
- 
+
 	os.system("/usr/cluster/bin/vcf-sort "+outfile+"."+str(RanVal)+".tempvcf |  /usr/cluster/bin/bgzip -c > "+outfile+".vcf.gz")
 	os.system("/usr/cluster/bin/tabix -p vcf "+outfile+".vcf.gz")
 	
@@ -194,11 +191,9 @@ def main():
 	print("\n "+ str(Miss) + " variants skipped (listed in "+ outfile+".missVariants)")
 	os.system("rm "+outfile+"."+str(RanVal)+".*")
 	print("\nFinished run at " + timeTxt)
-	print("Total Runtime: " + timediff(starttime,endtime))
+	print("Total Runtime: " + timediff(starttime, endtime))
 	
-	 
 
-	
 def usage():
 	print(''' \n VcfLiftOver.py -- Lift Over VCF file using input mapper
 	
@@ -215,12 +210,14 @@ def usage():
   Written by Sayatan Das, sayantan@umich.edu
   Last edited 2017-09-12
 ''')
- 
+
+
 def version():
 	print('''Version notes:
 
 v0.1-2017-09-12: First release. Does not handle multiallelics.
 ''')
+
 
 if __name__ == "__main__":
 	main()
